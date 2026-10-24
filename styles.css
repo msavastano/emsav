@@ -132,6 +132,40 @@ main {
 
 .hero.is-dragging .string-hit { cursor: grabbing; }
 
+/* The control bar: hover lights it like a string; drag it sideways and the puppet walks after it. */
+.control-wood {
+  fill: url(#control-wood);
+  stroke: rgba(20, 15, 11, 0.75);
+  stroke-width: 1.2;
+  transition: stroke 0.2s;
+}
+
+.control.is-lit .control-wood {
+  stroke: rgba(240, 226, 200, 0.95);
+  stroke-width: 2.4;
+}
+
+.control-ring {
+  fill: none;
+  stroke: rgba(20, 15, 11, 0.85);
+  stroke-width: 2;
+}
+
+.control-cord {
+  fill: none;
+  stroke: rgba(20, 15, 11, 0.8);
+  stroke-width: 1.6;
+}
+
+.control-hit {
+  fill: transparent;
+  pointer-events: all;
+  cursor: grab;
+  touch-action: none;
+}
+
+.hero.is-dragging .control-hit { cursor: grabbing; }
+
 .grip {
   fill: rgba(243, 234, 219, 0.12);
   stroke: rgba(243, 234, 219, 0.9);
@@ -693,5 +727,6 @@ main {
   html { scroll-behavior: auto; }
   .app-card,
   .app-visual svg,
-  .string { transition: none; }
+  .string,
+  .control-wood { transition: none; }
 }

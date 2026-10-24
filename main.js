@@ -37,6 +37,10 @@
     return [co, si, -si, co, c[0] - co * c[0] + si * c[1], c[1] - si * c[0] - co * c[1]];
   }
   function ap(M, p) { return [M[0] * p[0] + M[2] * p[1] + M[4], M[1] * p[0] + M[3] * p[1] + M[5]]; }
+  function inv(M) {
+    var d = M[0] * M[3] - M[1] * M[2];
+    return [M[3] / d, -M[1] / d, -M[2] / d, M[0] / d, (M[2] * M[5] - M[3] * M[4]) / d, (M[1] * M[4] - M[0] * M[5]) / d];
+  }
   function wrap(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
   function ang(p, c) { return Math.atan2(p[1] - c[1], p[0] - c[0]); }
   function cssMatrix(m) { return 'matrix(' + m.map(function (n) { return +n.toFixed(5); }).join(',') + ')'; }
@@ -55,6 +59,14 @@
     HL: [156, 440], HR: [277, 444],
     KL: [158, 566], KR: [269, 566]
   };
+  // The soles of the shoes. While walking the puppet rocks on one foot to lift the other.
+  var FOOT = { L: [169, 810], R: [261, 810] };
+
+  // The control bar, in canvas px from the centre of its main bar. The main bar carries the head, shoulder and
+  // hand strings, the wider leg bar above it carries the knee strings, and a post joins them to the hanging cord.
+  var BAR = { half: 120, ring: [0, -41] };
+  // Walking: how far one step goes (canvas px), how many steps each way at most, and how long a step takes (s).
+  var STEP = 40, MAX_STEPS = 4, STEP_TIME = 0.42;
 
   function setupHero(hero) {
     var main = document.getElementById('top');
@@ -89,20 +101,31 @@
     var active = null, hover = null, raf = 0, last = 0;
     var progress = -1, scrollRaf = 0;
 
+    // The bar rests centred over the puppet's waist. x and tilt spring toward their goals; the cord's top trails x.
+    var HOME = ap(G, J.W)[0];
+    var ctl = { x: HOME, v: 0, y0: 190, y: 190, tilt: 0, vt: 0, cord: HOME, vc: 0, lit: false };
+    ctl.el = hero.querySelector('.control');
+    ctl.hitEl = hero.querySelector('.control-hit');
+    ctl.cordEl = hero.querySelector('.control-cord');
+    // The puppet stands on step n. While dir is set it is partway (f) through a step toward n + dir, rocking on one
+    // foot so the other (lift) comes off the floor. k counts the steps in the current run so the feet alternate.
+    var walk = { n: 0, target: 0, dir: 0, f: 0, k: 0, lift: 'R', lo: 0, hi: 0 };
+    var wp = { x: 0, t: 0, hop: 0, up: 0, lift: 'R' };
+
     var strings = [
-      { id: 'crown', part: 'head', p: J.C, dx: -10, m: [12, -170], d1: 6, d2: 30 },
-      { id: 'shL', part: 'torso', p: J.SL, dx: -55, m: [-55, -150], d1: 10, d2: 40 },
-      { id: 'shR', part: 'torso', p: J.SR, dx: 60, m: [60, -140], d1: 10, d2: 40 },
-      { id: 'hL', part: 'faL', p: J.HL, dx: -95, m: [-50, 95], d1: 22, d2: 20 },
-      { id: 'hR', part: 'faR', p: J.HR, dx: 120, m: [55, 110], d1: 22, d2: 20 },
-      { id: 'kL', part: 'skirt', p: J.KL, dx: -165, m: [-45, 140], d1: 8, d2: 20 },
-      { id: 'kR', part: 'skirt', p: J.KR, dx: 175, m: [50, 135], d1: 8, d2: 20 }
+      { id: 'crown', part: 'head', p: J.C, b: [0, 4], mid: [0.5, 6, 0], d1: 6, d2: 30 },
+      { id: 'shL', part: 'torso', p: J.SL, b: [-46, 4], mid: [0.5, -7, 0], d1: 10, d2: 40 },
+      { id: 'shR', part: 'torso', p: J.SR, b: [46, 4], mid: [0.5, 8, 0], d1: 10, d2: 40 },
+      { id: 'hL', part: 'faL', p: J.HL, b: [-84, 4], m: [-50, 95], d1: 22, d2: 20 },
+      { id: 'hR', part: 'faR', p: J.HR, b: [84, 4], m: [55, 110], d1: 22, d2: 20 },
+      { id: 'kL', part: 'skirt', p: J.KL, b: [-110, -21], m: [-45, 140], d1: 8, d2: 20 },
+      { id: 'kR', part: 'skirt', p: J.KR, b: [110, -21], m: [50, 135], d1: 8, d2: 20 }
     ];
 
     strings.forEach(function (s) {
       var a = ap(G, s.p);
-      s.U = [a[0] + s.dx, -30];          // ceiling anchor
-      s.M = [a[0] + s.m[0], a[1] + s.m[1]]; // grip / sag point
+      s.U = barPoint(s.b);  // where it ties onto the control bar
+      s.M = slack(s, a);    // grip / sag point
       s.vM = [0, 0];
       s.h = 0;                            // how taut the string is while held (0..1)
       s.lit = false;
@@ -115,6 +138,11 @@
       s.hit.addEventListener('pointerenter', function () { hover = s.id; render(); });
       s.hit.addEventListener('pointerleave', function () { if (hover === s.id) { hover = null; render(); } });
     });
+
+    ctl.hitEl.addEventListener('pointerdown', onDownBar);
+    ctl.hitEl.addEventListener('touchstart', function (e) { e.preventDefault(); }, { passive: false });
+    ctl.hitEl.addEventListener('pointerenter', function () { hover = 'bar'; render(); });
+    ctl.hitEl.addEventListener('pointerleave', function () { if (hover === 'bar') { hover = null; render(); } });
 
     hero.addEventListener('pointermove', function (e) {
       if (!active) return;
@@ -146,6 +174,47 @@
       kick();
     }
 
+    function onDownBar(e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      walkBounds();
+      var c = toCanvas(e);
+      active = { bar: true, start: c, ptr: c, x0: ctl.x };
+      try { hero.setPointerCapture(e.pointerId); } catch (err) { /* not capturable */ }
+      hero.classList.add('is-dragging');
+      kick();
+    }
+
+    // How many steps the puppet may take each way: up to MAX_STEPS, keeping the bar on screen and, where the
+    // puppet starts clear of the headline, keeping it clear.
+    function walkBounds() {
+      var pad = 10 / L.s;
+      var visL = -L.x / L.s + pad, visR = (view.W - L.x) / L.s - pad;
+      var lo = Math.floor((HOME - BAR.half - visL) / STEP);
+      var hi = Math.floor((visR - HOME - BAR.half) / STEP);
+      var left = ap(G, [87, 0])[0] - 16 / L.s;
+      var edge = copyEdge();
+      if (edge !== null && left > edge) lo = Math.min(lo, Math.floor((left - edge) / STEP));
+      walk.lo = -cl(lo, 0, MAX_STEPS);
+      walk.hi = cl(hi, 0, MAX_STEPS);
+      walk.target = cl(walk.target, walk.lo, walk.hi);
+    }
+
+    // The right edge of the headline and intro text beside the puppet, in canvas px, or null if none is level with it.
+    function copyEdge() {
+      var hr = hero.getBoundingClientRect();
+      var top = hr.top + L.y + 400 * L.s, bottom = hr.top + L.y + 940 * L.s;
+      var range = document.createRange(), right = -Infinity;
+      copy.querySelectorAll('h1, p').forEach(function (el) {
+        range.selectNodeContents(el);
+        Array.prototype.forEach.call(range.getClientRects(), function (b) {
+          if (b.width && b.bottom > top && b.top < bottom) right = Math.max(right, b.right);
+        });
+      });
+      return right === -Infinity ? null : (right - hr.left - L.x) / L.s;
+    }
+
     // Cover-fit the 1920×1080 scene; on narrow screens slide the crop so the puppet sits clear of the headline.
     function layout() {
       var W = view.W, H = view.H;
@@ -160,13 +229,26 @@
       bg.style.objectPosition = L.x.toFixed(2) + 'px ' + L.y.toFixed(2) + 'px';
       stage.style.transform = 'translate(' + L.x.toFixed(2) + 'px, ' + L.y.toFixed(2) + 'px) scale(' + L.s.toFixed(5) + ')';
       stage.style.visibility = 'visible';
+      // Hang the bar about 150px down the screen, clear of the nav, whatever the crop.
+      ctl.y0 = cl((150 - L.y) / L.s, 170, 250);
     }
 
     function measure() {
       var W = hero.clientWidth, H = hero.clientHeight;
       if (W && H && (W !== view.W || H !== view.H || stage.style.visibility !== 'visible')) {
+        var first = stage.style.visibility !== 'visible';
         view = { W: W, H: H };
         applyLayout();
+        if (first) {
+          // Start with the bar at its height and every string hanging at rest from it.
+          ctl.y = ctl.y0;
+          var M = mats();
+          strings.forEach(function (s) { s.U = barPoint(s.b); s.M = slack(s, ap(G, ap(M[s.part], s.p))); });
+        }
+        // A narrower screen may leave the puppet past the new bounds; it walks back in.
+        walkBounds();
+        render();
+        kick();
         onScroll();
       }
     }
@@ -176,7 +258,62 @@
       return [(e.clientX - r.left - L.x) / L.s, (e.clientY - r.top - L.y) / L.s];
     }
 
-    function toSrc(c) { return [(c[0] - G[4]) / G[0], (c[1] - G[5]) / G[3]]; }
+    // Canvas px to the puppet's own source px, undoing where the walk has carried it.
+    function toSrc(c) { return ap(inv(mul(G, root())), c); }
+
+    // A point on the control bar (bar px from its centre) in canvas px.
+    function barPoint(p) {
+      var co = Math.cos(ctl.tilt), si = Math.sin(ctl.tilt);
+      return [ctl.x + co * p[0] - si * p[1], ctl.y + si * p[0] + co * p[1]];
+    }
+
+    // The walk's whole-body move: carried sideways, lifted a little, and rocked onto the planted foot.
+    function root() {
+      return mul([1, 0, 0, 1, wp.x / k, -wp.hop], rot(wp.lift === 'R' ? FOOT.L : FOOT.R, wp.t));
+    }
+
+    function advanceWalk(dt) {
+      var lead = function (dir) { return dir > 0 ? 'R' : 'L'; };
+      if (!walk.dir && walk.target !== walk.n) {
+        walk.dir = walk.target > walk.n ? 1 : -1;
+        walk.f = 0;
+        walk.k = 0;
+        walk.lift = lead(walk.dir);
+      }
+      if (walk.dir) {
+        // Turned back partway through a step: retrace it with the same foot still up.
+        if ((walk.target - walk.n) * walk.dir <= 0) {
+          walk.n += walk.dir;
+          walk.dir = -walk.dir;
+          walk.f = 1 - walk.f;
+          walk.k = 0;
+        }
+        walk.f += dt / STEP_TIME;
+        if (walk.f >= 1) {
+          walk.n += walk.dir;
+          walk.k++;
+          if (walk.n === walk.target) {
+            walk.dir = 0;
+            walk.f = 0;
+          } else {
+            var dir = walk.target > walk.n ? 1 : -1;
+            if (dir !== walk.dir) walk.k = 0;
+            walk.dir = dir;
+            walk.f -= 1;
+            // Lead with the foot on the side you're heading, then bring the other one over.
+            walk.lift = walk.k % 2 ? (lead(dir) === 'R' ? 'L' : 'R') : lead(dir);
+          }
+        }
+      }
+      var f = walk.dir ? walk.f : 0;
+      var up = Math.sin(Math.PI * f);
+      // Ease each step so the puppet moves while a foot is up and pauses as it lands.
+      wp.x = STEP * (walk.n + walk.dir * (f - Math.sin(2 * Math.PI * f) / (2 * Math.PI)));
+      wp.t = (wp.lift === 'R' ? -1 : 1) * 0.065 * up;
+      wp.hop = 8 * up;
+      wp.up = up;
+      wp.lift = walk.lift;
+    }
 
     function kick() {
       if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
@@ -192,11 +329,12 @@
     }
 
     function mats() {
-      var Mt = rot(J.W, q.tau);
+      var R = root();
+      var Mt = mul(R, rot(J.W, q.tau));
       var MuL = mul(Mt, rot(J.JL, q.a1L));
       var MuR = mul(Mt, rot(J.JR, q.a1R));
       return {
-        skirt: [1, 0, 0, 1, 0, 0],
+        skirt: R,
         torso: Mt,
         head: mul(Mt, rot(J.N, q.hd)),
         uaL: MuL, faL: mul(MuL, rot(J.EL, q.a2L)),
@@ -226,7 +364,7 @@
     function targets() {
       var tau = 0, hd = null, Lr = null, Rr = null;
       drv = {};
-      if (active) {
+      if (active && active.s) {
         var T = toSrc([active.A[0] + active.ptr[0] - active.start[0], active.A[1] + active.ptr[1] - active.start[1]]);
         var id = active.s.id;
         if (id === 'crown') {
@@ -245,14 +383,43 @@
         } else if (id === 'hL') { Lr = ik(T, J.JL, J.EL, J.HL); drv.a1L = drv.a2L = true; }
         else if (id === 'hR') { Rr = ik(T, J.JR, J.ER, J.HR); drv.a1R = drv.a2R = true; }
       }
-      tg.tau = tau;
-      tg.hd = hd === null ? -0.3 * q.tau : hd;
-      if (Lr) { tg.a1L = Lr[0]; tg.a2L = Lr[1]; } else { tg.a1L = -0.85 * q.tau; tg.a2L = 0.12 * q.tau; }
-      if (Rr) { tg.a1R = Rr[0]; tg.a2R = Rr[1]; } else { tg.a1R = -0.85 * q.tau; tg.a2R = 0.12 * q.tau; }
+      // While walking, the body above the waist leans back against the rock and the head and arms hang nearer upright.
+      tg.tau = drv.tau ? tau : -0.6 * wp.t;
+      tg.hd = hd === null ? -0.3 * q.tau - 0.3 * wp.t : hd;
+      if (Lr) { tg.a1L = Lr[0]; tg.a2L = Lr[1]; } else { tg.a1L = -0.85 * q.tau - 0.5 * wp.t; tg.a2L = 0.12 * q.tau; }
+      if (Rr) { tg.a1R = Rr[0]; tg.a2R = Rr[1]; } else { tg.a1R = -0.85 * q.tau - 0.5 * wp.t; tg.a2R = 0.12 * q.tau; }
     }
+
+    // While held, the bar follows the pointer sideways and sets how many steps the puppet should take. Let go, it
+    // glides to sit over the step the puppet is walking to.
+    function moveBar(dt) {
+      if (active && active.bar) {
+        var raw = active.x0 + active.ptr[0] - active.start[0] - HOME;
+        var lo = (walk.lo - 0.5) * STEP, hi = (walk.hi + 0.5) * STEP;
+        // Past the last step the bar gives a little, then stops.
+        var off = raw < lo ? lo - give(lo - raw) : raw > hi ? hi + give(raw - hi) : raw;
+        ctl.x = HOME + off;
+        ctl.v = 0;
+        walk.target = cl(Math.round(off / STEP), walk.lo, walk.hi);
+      } else {
+        ctl.v += (60 * (HOME + walk.target * STEP - ctl.x) - 14 * ctl.v) * dt;
+        ctl.x += ctl.v * dt;
+      }
+      // The bar rocks with each step, lifting the knee string on the stepping side, and rises a touch as the puppet does.
+      ctl.vt += (160 * (1.4 * wp.t - ctl.tilt) - 16 * ctl.vt) * dt;
+      ctl.tilt += ctl.vt * dt;
+      ctl.y = ctl.y0 - 1.5 * k * wp.hop;
+      // The hanging cord's top trails the bar, so the cord swings as the bar moves.
+      ctl.vc += (30 * (ctl.x - ctl.cord) - 7 * ctl.vc) * dt;
+      ctl.cord += ctl.vc * dt;
+    }
+
+    function give(d) { return 22 * (1 - Math.exp(-d / 36)); }
 
     // Damped springs pull every joint toward its target; driven joints are stiffer.
     function step(dt) {
+      advanceWalk(dt);
+      moveBar(dt);
       targets();
       for (var key in q) {
         var K = drv[key] ? 150 : 52, C = drv[key] ? 20 : 6.2;
@@ -264,35 +431,54 @@
       for (var i = 0; i < strings.length; i++) {
         var s = strings[i];
         var A = ap(G, ap(M[s.part], s.p));
+        s.U = barPoint(s.b);
         if (active && active.s === s) {
           s.M = [active.ptr[0], active.ptr[1]];
           s.vM = [0, 0];
           s.h += (1 - s.h) * Math.min(1, dt * 16);
         } else {
-          var goal = [A[0] + s.m[0], A[1] + s.m[1]];
+          var goal = slack(s, A);
+          // Mid-step, the lifted foot's knee string draws up toward the bar.
+          var pull = s.id === 'k' + wp.lift ? wp.up : 0;
+          if (pull) {
+            for (var g = 0; g < 2; g++) goal[g] += (A[g] + (s.U[g] - A[g]) * 0.3 - goal[g]) * 0.85 * pull;
+          }
           for (var c = 0; c < 2; c++) {
             s.vM[c] += (70 * (goal[c] - s.M[c]) - 7 * s.vM[c]) * dt;
             s.M[c] += s.vM[c] * dt;
           }
-          s.h += (0 - s.h) * Math.min(1, dt * 6);
+          s.h += (0.8 * pull - s.h) * Math.min(1, dt * (pull ? 12 : 6));
         }
       }
     }
 
     function settled() {
-      for (var key in q) if (Math.abs(v[key]) > 0.003 || Math.abs(q[key] - tg[key]) > 0.002) return false;
+      // Compare angles the short way round: a joint can come to rest a full turn from its target.
+      for (var key in q) if (Math.abs(v[key]) > 0.003 || Math.abs(wrap(q[key] - tg[key])) > 0.002) return false;
+      if (walk.dir || walk.target !== walk.n) return false;
+      if (Math.abs(ctl.v) > 0.5 || Math.abs(ctl.x - HOME - walk.target * STEP) > 0.3) return false;
+      if (Math.abs(ctl.vt) > 0.002 || Math.abs(ctl.tilt) > 0.0005) return false;
+      if (Math.abs(ctl.vc) > 0.5 || Math.abs(ctl.cord - ctl.x) > 0.3) return false;
       var M = mats();
       for (var i = 0; i < strings.length; i++) {
         var s = strings[i];
         var A = ap(G, ap(M[s.part], s.p));
         if (Math.abs(s.vM[0]) + Math.abs(s.vM[1]) > 0.5) return false;
-        if (Math.abs(s.M[0] - A[0] - s.m[0]) + Math.abs(s.M[1] - A[1] - s.m[1]) > 0.5) return false;
+        var rest = slack(s, A);
+        if (Math.abs(s.M[0] - rest[0]) + Math.abs(s.M[1] - rest[1]) > 0.5) return false;
         if (s.h > 0.01) return false;
       }
       return true;
     }
 
-    // A string runs eyelet A -> grip/sag point M -> ceiling anchor U, and pulls straighter while held.
+    // Where a string's slack hangs at rest: below the eyelet for the hands and knees (m), or partway up toward
+    // the bar and bowed out a little for the head and shoulders (mid: fraction of the way, then x and y offsets).
+    function slack(s, A) {
+      if (!s.mid) return [A[0] + s.m[0], A[1] + s.m[1]];
+      return [A[0] + (s.U[0] - A[0]) * s.mid[0] + s.mid[1], A[1] + (s.U[1] - A[1]) * s.mid[0] + s.mid[2]];
+    }
+
+    // A string runs eyelet A -> grip/sag point M -> its tie on the control bar U, and pulls straighter while held.
     function path(s, A) {
       var M = s.M, U = s.U, h = s.h;
       var f = function (n) { return n.toFixed(1); };
@@ -312,7 +498,15 @@
         var o = PT[key];
         parts[key].style.transform = cssMatrix(mul(M[key], [1, 0, 0, 1, o[0], o[1]]));
       }
+      var bt = 'translate(' + ctl.x.toFixed(1) + ' ' + ctl.y.toFixed(1) + ') rotate(' + (ctl.tilt * 180 / Math.PI).toFixed(2) + ')';
+      ctl.el.setAttribute('transform', bt);
+      ctl.hitEl.setAttribute('transform', bt);
+      var ring = barPoint(BAR.ring);
+      ctl.cordEl.setAttribute('d', 'M' + ctl.cord.toFixed(1) + ' -80L' + ring[0].toFixed(1) + ' ' + ring[1].toFixed(1));
+      var barLit = hover === 'bar' || !!(active && active.bar);
+      if (barLit !== ctl.lit) { ctl.lit = barLit; ctl.el.classList.toggle('is-lit', barLit); }
       strings.forEach(function (s) {
+        s.U = barPoint(s.b);
         var d = path(s, ap(G, ap(M[s.part], s.p)));
         s.line.setAttribute('d', d);
         if (!s.hit) return;

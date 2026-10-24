@@ -2,7 +2,7 @@
 
 The emSav website: a one-page portfolio for five small AI apps, built from the "Marionette Room Hero" design.
 
-- **Hero**: a sunlit farmhouse room with a carved marionette. Drag any of the upper strings (head, shoulders, hands) and the puppet moves with spring physics, then settles back. Works with mouse, pen and touch.
+- **Hero**: a sunlit farmhouse room with a carved marionette. Drag any of the upper strings (head, shoulders, hands) and the puppet moves with spring physics, then settles back. The strings tie onto a wooden control bar hanging above the puppet; drag the bar left or right and the puppet walks after it, a step at a time, up to four steps each way. It stops short of the screen edge and, on wide screens, of the headline. Works with mouse, pen and touch.
 - **The work**: five cards, each linking to a live app. Cards rise in as they scroll into view, and the hero dims as the panel slides over it.
 - **Design, About, Booking and Quote**: placeholder sections the nav links and "Get a quote" button scroll to. Their copy is a first draft, and the booking calendar and quote form are marked "coming soon" until the real ones exist.
 
@@ -39,4 +39,5 @@ Any static host works with the repo root as the site root and no build command: 
 - **Copy** lives in `index.html`.
 - **Colors** are CSS variables at the top of `styles.css`.
 - **Puppet pose and string placement** are the `G`, `PT`, `J` and `strings` values near the top of `main.js`. They are in the puppet's source-image pixels, so change them together with the part images.
+- **Walking** is tuned by `STEP`, `MAX_STEPS` and `STEP_TIME` near the top of `main.js`. The control bar's shape is in `index.html`; where each string ties on is the `b` value in `strings`.
 - Motion respects the visitor's reduced-motion setting: the card reveal and hover animations turn off.
