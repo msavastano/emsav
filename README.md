@@ -4,6 +4,7 @@ The emSav website: a one-page portfolio for five small AI apps, built from the "
 
 - **Hero**: a sunlit farmhouse room with a carved marionette. Drag any of the upper strings (head, shoulders, hands) and the puppet moves with spring physics, then settles back. Works with mouse, pen and touch.
 - **The work**: five cards, each linking to a live app. Cards rise in as they scroll into view, and the hero dims as the panel slides over it.
+- **Design, About, Booking and Quote**: placeholder sections the nav links and "Get a quote" button scroll to. Their copy is a first draft, and the booking calendar and quote form are marked "coming soon" until the real ones exist.
 
 It is a plain static site with no build step and no dependencies.
 

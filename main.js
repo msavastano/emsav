@@ -66,6 +66,22 @@
     var parts = {};
     hero.querySelectorAll('[data-part]').forEach(function (el) { parts[el.getAttribute('data-part')] = el; });
 
+    // Stacking order. Each hand draws over its own upper arm, and the arm last pulled by its hand
+    // draws over the other arm, so a raised hand never slips behind a sleeve.
+    var lifted = 'R';
+    function stackArms(side) {
+      lifted = side;
+      var under = side === 'L' ? 'R' : 'L';
+      parts['ua' + under].style.zIndex = 4;
+      parts['fa' + under].style.zIndex = 5;
+      parts['ua' + side].style.zIndex = 6;
+      parts['fa' + side].style.zIndex = 7;
+    }
+    parts.skirt.style.zIndex = 1;
+    parts.torso.style.zIndex = 2;
+    parts.head.style.zIndex = 3;
+    stackArms(lifted);
+
     function zero() { return { tau: 0, hd: 0, a1L: 0, a2L: 0, a1R: 0, a2R: 0 }; }
     var q = zero(), v = zero(), tg = zero(), drv = {};
     var view = { W: 1440, H: 900 };
@@ -123,6 +139,8 @@
       var c = toCanvas(e);
       var M = mats();
       active = { s: s, start: c, ptr: c, A: ap(G, ap(M[s.part], s.p)) };
+      if (s.id === 'hL' && lifted !== 'L') stackArms('L');
+      else if (s.id === 'hR' && lifted !== 'R') stackArms('R');
       try { hero.setPointerCapture(e.pointerId); } catch (err) { /* not capturable */ }
       hero.classList.add('is-dragging');
       kick();
