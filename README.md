@@ -14,10 +14,10 @@ It is a plain static site with no build step and no dependencies.
 | --- | --- |
 | `index.html` | The page and all copy |
 | `styles.css` | Layout, colors and type |
-| `main.js` | Marionette physics, scroll fade and card reveal |
+| `main.js` | Marionette physics, scroll fade, card reveal and logo swing |
 | `assets/room.webp` | Hero photo (1920×1080) |
 | `assets/marionette/*.webp` | The seven puppet parts |
-| `favicon.svg` | Tab icon |
+| `favicon.svg` | Tab icon: the hanging m on its own |
 
 ## Run locally
 
@@ -37,6 +37,7 @@ Any static host works with the repo root as the site root and no build command: 
 ## Editing
 
 - **Copy** lives in `index.html`.
+- **Logo** is the inline SVG in the header's `.brand` link: the emSav wordmark with its m hanging from a marionette control bar by three strings. The letters are Schibsted Grotesk Bold outlines, colored by `currentColor`. Pointing at it swings the m once (`setupBrand` in `main.js`), except with reduced motion.
 - **Colors** are CSS variables at the top of `styles.css`.
 - **Puppet pose and string placement** are the `G`, `PT`, `J` and `strings` values near the top of `main.js`. They are in the puppet's source-image pixels, so change them together with the part images.
 - **Walking** is tuned by `STEP`, `MAX_STEPS` and `STEP_TIME` near the top of `main.js`. The control bar's shape is in `index.html`; where each string ties on is the `b` value in `strings`.

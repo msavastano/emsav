@@ -212,12 +212,31 @@ main {
   pointer-events: auto;
 }
 
+/* The logo: the m of emSav hangs from a marionette control bar. It swings once when pointed at (main.js). */
 .brand {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  display: block;
+  /* The control bar makes the logo taller than its letters; this lines the letters up with the nav links. */
+  margin-top: -12px;
   text-decoration: none;
   color: var(--cream);
+}
+
+.brand-logo {
+  display: block;
+  height: 34px;
+  width: auto;
+  overflow: visible;
+}
+
+.brand.is-swinging .brand-puppet { animation: brand-swing 1.6s ease-in-out; }
+
+@keyframes brand-swing {
+  0% { transform: rotate(0deg); }
+  18% { transform: rotate(-7deg); }
+  42% { transform: rotate(4.5deg); }
+  64% { transform: rotate(-2.5deg); }
+  84% { transform: rotate(1deg); }
+  100% { transform: rotate(0deg); }
 }
 
 .nav-links {
@@ -729,4 +748,5 @@ main {
   .app-visual svg,
   .string,
   .control-wood { transition: none; }
+  .brand.is-swinging .brand-puppet { animation: none; }
 }
