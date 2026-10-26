@@ -545,7 +545,19 @@
     onScroll();
   }
 
+  /* ---------- The logo's m swings once when pointed at ---------- */
+
+  function setupBrand() {
+    var brand = document.querySelector('.brand');
+    if (!brand || reducedMotion) return;
+    function swing() { brand.classList.add('is-swinging'); }
+    brand.addEventListener('pointerenter', swing);
+    brand.addEventListener('focus', swing);
+    brand.addEventListener('animationend', function () { brand.classList.remove('is-swinging'); });
+  }
+
   setupReveal();
+  setupBrand();
   var hero = document.querySelector('.hero');
   if (hero) setupHero(hero);
 })();
