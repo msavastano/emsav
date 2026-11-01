@@ -239,7 +239,7 @@ export function indexPage(config) {
     : '<p class="films-empty">The first film is on its way.</p>';
 
   return `${head(config, {
-    title: `${heading} — emSav`,
+    title: `${heading.replace(/[.!]$/, '')} — emSav`,
     description: intro || 'Motion graphics films by emSav.',
     path: '/films/',
     image: first && (first.ogImage || first.poster),
