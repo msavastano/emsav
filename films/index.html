@@ -12,7 +12,9 @@
 <meta property="og:title" content="Motion graphics films — emSav">
 <meta property="og:description" content="Short motion graphics films. Turn the sound on and press play.">
 <meta property="og:url" content="https://emsav-six.vercel.app/films/">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster.png">
+<meta property="og:image:alt" content="A frame from Plexus">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,13 +58,30 @@
 
     <div class="section-head reveal">
       <div class="section-title-group">
-        <p class="eyebrow">Films</p>
+        <p class="eyebrow">Films · 01</p>
         <h1 id="films-title">Motion graphics films.</h1>
       </div>
       <p class="section-lede">Short motion graphics films. Turn the sound on and press play.</p>
     </div>
 
-    <p class="films-empty">The first film is on its way.</p>
+    <ul class="film-grid" role="list">
+      <li class="film-card reveal" style="--delay: 0ms">
+        <div class="film-player" data-film="plexus">
+          <video class="film-video" controls playsinline preload="none" poster="https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster.png" aria-label="Plexus">
+            <source src="https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final.mp4" type="video/mp4">
+            <p class="film-fallback">This browser can't play the film here. <a href="https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final.mp4">Download the MP4</a> instead.</p>
+          </video>
+          <button class="film-play" type="button" aria-label="Play Plexus" hidden>
+            <span class="film-play-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8 5.6v12.8a.8.8 0 0 0 1.2.7l10.1-6.4a.8.8 0 0 0 0-1.4L9.2 4.9a.8.8 0 0 0-1.2.7z"></path></svg></span>
+          </button>
+          <p class="film-error" role="status"></p>
+        </div>
+        <div class="film-card-body">
+          <h2 class="film-card-title"><a href="/films/plexus/">Plexus</a></h2>
+          <p class="film-card-meta"><time datetime="PT34S">0:34</time></p>
+        </div>
+      </li>
+    </ul>
 
   </div>
 </section>

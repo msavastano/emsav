@@ -2,5 +2,14 @@
   "siteUrl": "https://emsav-six.vercel.app",
   "heading": "Motion graphics films.",
   "intro": "Short motion graphics films. Turn the sound on and press play.",
-  "films": []
+  "films": [
+    {
+      "title": "Plexus",
+      "slug": "plexus",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster.png",
+      "duration": "0:34",
+      "date": "2026-11-01"
+    }
+  ]
 }
