@@ -1,0 +1,16 @@
+{
+  "name": "emsav-scripts",
+  "private": true,
+  "description": "Helper scripts for the emSav site. Not deployed.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "upload": "node upload-film.mjs",
+    "build": "node build-films.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.8.2"
+  }
+}

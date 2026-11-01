@@ -1,0 +1,6 @@
+# Helper scripts and notes; the site itself needs none of these.
+scripts
+node_modules
+README.md
+.env
+.env*.local

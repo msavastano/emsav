@@ -729,6 +729,180 @@ main {
 .contact-card > .brief-list,
 .contact-card > p:nth-last-child(2) { margin-bottom: 10px; }
 
+/* ---------- Films pages (films/, built by scripts/build-films.mjs; the player itself is in film-player.css) ---------- */
+
+.films-main {
+  background: var(--panel);
+  padding-bottom: clamp(88px, 10vw, 152px);
+}
+
+.films-header { background: var(--ink); }
+
+.nav-links a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+}
+
+.films-main > .section:first-child { padding-top: clamp(40px, 6vw, 88px); }
+
+.films-main h1 {
+  margin: 0;
+  font-size: clamp(36px, 4.6vw, 66px);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--cream-bright);
+  text-wrap: balance;
+}
+
+.film-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+  gap: clamp(36px, 4vw, 56px) 24px;
+}
+
+.film-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.film-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.film-grid .film-card-title {
+  margin: 0;
+  font-size: clamp(22px, 2vw, 26px);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--cream-bright);
+}
+
+.film-card-title a { text-decoration: none; color: inherit; }
+.film-card-title a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.film-card-meta,
+.film-more-time {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.film-card-desc {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--body);
+}
+
+.films-empty {
+  margin: 0;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border: 1px dashed rgba(243, 234, 219, 0.22);
+  border-radius: 16px;
+  font-size: 16px;
+  color: var(--body);
+}
+
+.film-detail .section-inner,
+.film-more-section .section-inner {
+  max-width: 1200px;
+  gap: clamp(24px, 3vw, 40px);
+}
+
+.film-detail .film-player { --film-radius: 20px; }
+
+.film-back { margin: 0 0 -8px; }
+
+.film-back a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--body);
+}
+
+.film-back a:hover { color: var(--cream-bright); }
+
+.film-back svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.film-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 48px;
+}
+
+.section h2.film-more-title {
+  font-size: clamp(26px, 2.6vw, 34px);
+  letter-spacing: -0.02em;
+}
+
+.film-more {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 28px 24px;
+}
+
+.film-more a {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.film-more img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #0b0805;
+  box-shadow: 0 0 0 1px rgba(243, 234, 219, 0.09);
+  transition: transform .55s var(--ease);
+}
+
+.film-more a:hover img { transform: translateY(-4px); }
+
+.film-more-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cream-bright);
+}
+
 /* ---------- Reveal on scroll (main.js turns this on) ---------- */
 
 .reveal-init .reveal:not(.is-in) {
@@ -747,6 +921,8 @@ main {
   .app-card,
   .app-visual svg,
   .string,
-  .control-wood { transition: none; }
+  .control-wood,
+  .film-more img { transition: none; }
+  .film-more a:hover img { transform: none; }
   .brand.is-swinging .brand-puppet { animation: none; }
 }
