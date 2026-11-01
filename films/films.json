@@ -10,6 +10,30 @@
       "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster.png",
       "duration": "0:34",
       "date": "2026-11-01"
+    },
+    {
+      "title": "Chronovisor",
+      "slug": "chronovisor",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final_16x9.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster%20-%20Copy.png",
+      "duration": "0:24",
+      "date": "2026-11-01"
+    },
+    {
+      "title": "Out of Frame",
+      "slug": "out-of-frame",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final_out-of-frame.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster-out-of-frame.png",
+      "duration": "0:38",
+      "date": "2026-11-01"
+    },
+    {
+      "title": "UltraIntelligent",
+      "slug": "ultraintelligent",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final_16x9%20-ultraintelligent.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster%20-%20ultraintelligent.png",
+      "duration": "1:07",
+      "date": "2026-11-01"
     }
   ]
 }
