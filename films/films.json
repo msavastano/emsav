@@ -4,6 +4,40 @@
   "intro": "Short motion graphics films. Turn the sound on and press play.",
   "films": [
     {
+      "title": "Lamina",
+      "slug": "lamina",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/lamina_final.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster-lamina.png",
+      "duration": "0:30",
+      "models": [
+        "Opus 5.5",
+        "Gemini 3.8 Flash TTS",
+        "Lyria 3 Clip",
+        "Nano Banana 3 Pro",
+        "Gemini Omni 1.1 Flash"
+      ],
+      "tools": [
+        "Claude Desktop Projects"
+      ],
+      "date": "2026-11-02"
+    },
+    {
+      "title": "Pass a Bill",
+      "slug": "pass-a-bill",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final-bills.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster-bills.png",
+      "duration": "1:00",
+      "models": [
+        "Opus 5.5",
+        "Gemini 3.8 Flash TTS",
+        "Lyria 3 Clip"
+      ],
+      "tools": [
+        "Claude Desktop Projects"
+      ],
+      "date": "2026-11-02"
+    },
+    {
       "title": "Dyson Sphere",
       "slug": "dyson-sphere",
       "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/dyson.mp4",
