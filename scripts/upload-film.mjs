@@ -13,6 +13,8 @@
 //   --captions       A WebVTT (.vtt) captions file. Copied into the repo, not Blob
 //   --captions-lang  The captions' language code (default: en)
 //   --captions-label The captions' name in the player menu (default: English)
+//   --models         The models used, separated by commas, like "Opus 5.5, Lyria 3"
+//   --tools          The tools used, separated by commas, like "Blender, Claude Desktop Projects"
 //   --date           The release date, YYYY-MM-DD (default: today)
 //   --duration       Override the length read from the MP4, like 2:41
 //   --dry-run        Check the files and show what would happen, without uploading
@@ -120,6 +122,11 @@ function loadEnv() {
   }
 }
 
+// "Opus 5.5, Lyria 3" -> ["Opus 5.5", "Lyria 3"]
+export function splitList(text) {
+  return text.split(',').map((s) => s.trim()).filter(Boolean);
+}
+
 function home(p) { return p && p.startsWith('~/') ? join(process.env.HOME || '', p.slice(2)) : p; }
 
 function needFile(p, label, exts) {
@@ -163,6 +170,8 @@ async function main() {
       captions: { type: 'string' },
       'captions-lang': { type: 'string', default: 'en' },
       'captions-label': { type: 'string', default: 'English' },
+      models: { type: 'string' },
+      tools: { type: 'string' },
       date: { type: 'string' },
       duration: { type: 'string' },
       'dry-run': { type: 'boolean', default: false },
@@ -237,6 +246,11 @@ async function main() {
     captionsEntry = [{ src: `/films/${slug}/${name}`, srclang: o['captions-lang'], label: o['captions-label'] }];
   }
 
+  // Models and tools: use what was passed, or keep what the film already had.
+  const list = (key) => (o[key] != null ? splitList(o[key]) : (existing && existing[key]) || []);
+  const models = list('models');
+  const tools = list('tools');
+
   const film = {
     title: o.title,
     slug,
@@ -246,6 +260,8 @@ async function main() {
     ...(o.description || (existing && existing.description) ? { description: o.description || existing.description } : {}),
     ...(sheetUrl || (existing && existing.ogImage) ? { ogImage: sheetUrl || existing.ogImage } : {}),
     ...(captionsEntry ? { captions: captionsEntry } : {}),
+    ...(models.length ? { models } : {}),
+    ...(tools.length ? { tools } : {}),
     date: (existing && existing.date && !o.date) ? existing.date : date,
   };
   if (existing) config.films[config.films.indexOf(existing)] = film;

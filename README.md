@@ -20,7 +20,7 @@ It is a plain static site with no build step and no dependencies. The films page
 | `assets/marionette/*.webp` | The seven puppet parts |
 | `favicon.svg` | Tab icon: the hanging m on its own |
 | `film-player.js`, `film-player.css` | The video player used on the films pages |
-| `films/films.json` | The list of films: title, slug, video URL, poster, length |
+| `films/films.json` | The list of films: title, slug, video URL, poster, length, and the models and tools used |
 | `films/index.html`, `films/<slug>/index.html` | The films pages, written by `scripts/build-films.mjs`. Don't edit by hand |
 | `scripts/` | The film upload and page-building scripts. Not deployed |
 
@@ -86,6 +86,7 @@ The script checks the MP4 first (H.264 and AAC, whether it can start playing bef
 - `--description "..."`: a sentence or two for the page and link previews
 - `--contact-sheet sheet.png`: an image for link previews instead of the poster
 - `--captions paper-moon.en.vtt`: a WebVTT captions file, copied into `films/<slug>/` (add `--captions-lang` and `--captions-label` for other languages)
+- `--models "Opus 5.5, Lyria 3"` and `--tools "Blender, Claude Desktop Projects"`: what the film was made with, separated by commas
 - `--dry-run`: check the files without uploading anything
 
 Run `node scripts/upload-film.mjs --help` for the full list. If the script warns that the index is at the end of the MP4, fix it without re-encoding using the `ffmpeg ... -movflags +faststart` command it prints, then upload the fixed file.
@@ -104,11 +105,13 @@ Upload the MP4 and poster in the Blob store's Browser tab in the Vercel dashboar
   "description": "Optional. One or two sentences.",
   "ogImage": "Optional. A contact sheet URL for link previews; the poster is used if this is left out.",
   "captions": [{ "src": "/films/paper-moon/captions.en.vtt", "srclang": "en", "label": "English" }],
+  "models": ["Opus 5.5", "Lyria 3"],
+  "tools": ["Blender", "Claude Desktop Projects"],
   "date": "2026-11-01"
 }
 ```
 
-`title`, `slug`, `video`, `poster` and `duration` are required. The slug becomes the page address, `/films/<slug>/`. Films appear in the order they're listed. Captions must be files in this repo, not Blob URLs, so the browser can load them without extra CORS setup. The page heading and intro, and the site address used in share links (`siteUrl`), are at the top of `films/films.json`.
+`title`, `slug`, `video`, `poster` and `duration` are required. The slug becomes the page address, `/films/<slug>/`. Films appear in the order they're listed. `models` and `tools` are optional lists of names: each film's page shows them as tags under the title, and the films grid shows a smaller version under each film. Leave one out and that row doesn't appear. Captions must be files in this repo, not Blob URLs, so the browser can load them without extra CORS setup. The page heading and intro, and the site address used in share links (`siteUrl`), are at the top of `films/films.json`.
 
 `node scripts/build-films.mjs --check` reports whether the committed pages match `films/films.json`.
 
