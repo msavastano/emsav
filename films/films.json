@@ -4,6 +4,14 @@
   "intro": "Short motion graphics films. Turn the sound on and press play.",
   "films": [
     {
+      "title": "Dyson Sphere",
+      "slug": "dyson-sphere",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/dyson.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/poster-dyson.png",
+      "duration": "2:28",
+      "date": "2026-11-02"
+    },
+    {
       "title": "Plexus",
       "slug": "plexus",
       "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/final.mp4",
