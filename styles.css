@@ -860,6 +860,84 @@ main {
   gap: 20px 48px;
 }
 
+/* What a film was made with: a label, then a row of tags, for each list (Models, Tools). */
+.film-credits {
+  margin: 0;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+}
+
+.film-credit {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px 20px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(243, 234, 219, 0.08);
+}
+
+.film-credit dt {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.film-credit dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.film-tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.film-tags li {
+  padding: 6px 14px;
+  border: 1px solid rgba(243, 234, 219, 0.14);
+  border-radius: 999px;
+  background: rgba(243, 234, 219, 0.04);
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--cream);
+}
+
+/* The smaller version on the films grid: no rules between rows, smaller tags. */
+.film-credits-compact {
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.film-credits-compact .film-credit {
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 6px 14px;
+  padding: 0;
+  border: 0;
+}
+
+.film-credits-compact dt { font-size: 11px; }
+.film-credits-compact .film-tags { gap: 6px; }
+
+.film-credits-compact .film-tags li {
+  padding: 3px 10px;
+  font-size: 13px;
+}
+
+/* On a phone the film page puts each label above its tags, so the tags get the full width. */
+@media (max-width: 560px) {
+  .film-credits:not(.film-credits-compact) .film-credit {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+}
+
 .section h2.film-more-title {
   font-size: clamp(26px, 2.6vw, 34px);
   letter-spacing: -0.02em;
