@@ -131,6 +131,20 @@
         "Claude Desktop Projects"
       ],
       "date": "2026-11-01"
+    },
+    {
+      "title": "The Last Invention",
+      "slug": "the-last-invention",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/last-invention.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/last-invention.png",
+      "duration": "1:00",
+      "models": [
+        "Opus 5.5"
+      ],
+      "tools": [
+        "Claude Code Desktop"
+      ],
+      "date": "2026-11-03"
     }
   ]
 }
