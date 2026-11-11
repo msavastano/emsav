@@ -41,16 +41,17 @@
     {
       "title": "Anatomy of a Blackhole",
       "slug": "anatomy-of-a-blackhole",
-      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/bh-argon-agy.mp4",
-      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/bh-argon.png",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/fable%20-bh-anatomy-of-a-black-hole-v2-narrated.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/fable-bh-poster.png",
       "duration": "0:45",
       "models": [
-        "Gemini Argon 4"
+        "Fable 5.2",
+        "Gemini TTS"
       ],
       "tools": [
-        "Antigravity"
+        "Claude Desktop Projects"
       ],
-      "date": "2026-11-02"
+      "date": "2026-11-11"
     },
     {
       "title": "Lamina",
