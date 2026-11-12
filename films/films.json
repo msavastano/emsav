@@ -4,6 +4,21 @@
   "intro": "Short motion graphics films. Turn the sound on and press play.",
   "films": [
     {
+      "title": "Nerve Treaty",
+      "slug": "nerve-treaty",
+      "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/nerve-treaty-compressed.mp4",
+      "poster": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/nerve-treaty-poster.png",
+      "duration": "1:00",
+      "models": [
+        "Fable 5.2",
+        "Gemini TTS"
+      ],
+      "tools": [
+        "Claude Desktop Projects"
+      ],
+      "date": "2026-11-12"
+    },
+    {
       "title": "Dyson Sphere",
       "slug": "dyson-sphere",
       "video": "https://vutetsxxdiqptqoz.public.blob.vercel-storage.com/dyson.mp4",
